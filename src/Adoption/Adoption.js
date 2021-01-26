@@ -36,7 +36,7 @@ export default class Adoption extends React.Component {
   //Get the next cat
   getCat = () => {
     this.setState({ error: null });
-    const URL = `${config.API_ENDPOINT}/cats`;
+    const URL = `${config.REACT_APP_API_ENDPOINT}/cats`;
     //Fetch Call GET
     return fetch(URL)
       .then((res) => {
@@ -50,7 +50,7 @@ export default class Adoption extends React.Component {
   //Get the next dog
   getDog = () => {
     this.setState({ error: null });
-    const URL = `${config.API_ENDPOINT}/dogs`;
+    const URL = `${config.REACT_APP_API_ENDPOINT}/dogs`;
     //Fetch Call Get
     return fetch(URL)
       .then((res) => {
@@ -64,7 +64,7 @@ export default class Adoption extends React.Component {
   //Get the line list for the humany woomany stuff
   getLine = () => {
     this.setState({ error: null });
-    const URL = `${config.API_ENDPOINT}/people`;
+    const URL = `${config.REACT_APP_API_ENDPOINT}/people`;
     //Fetch Call Get
     return fetch(URL)
       .then((res) => {
@@ -77,7 +77,7 @@ export default class Adoption extends React.Component {
 
   //Adopt a cat (removing it from the queue)
   adoptCat = () => {
-    const URL = `${config.API_ENDPOINT}/cats`;
+    const URL = `${config.REACT_APP_API_ENDPOINT}/cats`;
     //Delete pet since it has been adopted
     return fetch(URL, {
       method: "DELETE",
@@ -93,7 +93,7 @@ export default class Adoption extends React.Component {
 
   //Adopt a dog (removing it from the queue)
   adoptDog = () => {
-    const URL = `${config.API_ENDPOINT}/dogs`;
+    const URL = `${config.REACT_APP_API_ENDPOINT}/dogs`;
     //Fetch DELETE since pet is no longer available
     return fetch(URL, {
       method: "DELETE",
@@ -110,7 +110,7 @@ export default class Adoption extends React.Component {
   //HELPERS
 
   removeName = () => {
-    const URL = `${config.API_ENDPOINT}/people`;
+    const URL = `${config.REACT_APP_API_ENDPOINT}/people`;
     return fetch(URL, {
       method: "DELETE",
       headers: {
@@ -123,7 +123,7 @@ export default class Adoption extends React.Component {
   };
 
   addName = (name) => {
-    const URL = `${config.API_ENDPOINT}/people`;
+    const URL = `${config.REACT_APP_API_ENDPOINT}/people`;
     return fetch(URL, {
       method: "POST",
       headers: {
@@ -143,7 +143,7 @@ export default class Adoption extends React.Component {
     if (exampleIndex >= exampleNames.length) {
       exampleIndex = 0;
     }
-    const URL = `${config.API_ENDPOINT}/people`;
+    const URL = `${config.REACT_APP_API_ENDPOINT}/people`;
     return fetch(URL, {
       method: "POST",
       headers: {
