@@ -1,0 +1,15 @@
+body {
+  background-color: burlywood;
+  font-family: sans-serif;
+}
+
+.home-link {
+  text-decoration: none;
+  background-color: rgba(0, 0, 0, 0.219);
+  padding: 10px;
+  border-radius: 12px;
+}
+
+.home-link:visited {
+  color: black;
+}

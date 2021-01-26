@@ -1,0 +1,18 @@
+.start {
+  text-decoration: none;
+}
+
+.start:visited {
+  color: black;
+}
+
+.landing {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.219);
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 500px;
+  height: 200px;
+}

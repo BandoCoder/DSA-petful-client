@@ -1,39 +1,36 @@
 import React from "react";
 import config from "../config";
+import "./Adoption.css";
 
 // Demo Interval helper variables
 const exampleNames = ["Rod Farva", "Monty Python", "Jim Taggart", "Superman"];
 let exampleIndex = 0;
 let nameInterval;
-let dogInterval;
-let catInterval;
-let lineCap = 0;
+let petInterval;
 let petCoin = 1;
 
 export default class Adoption extends React.Component {
   state = {
     currCat: {},
     currDog: {},
-    currPerson: "",
     userName: "",
     line: [],
     error: null,
     userTurn: false,
+    adoptSuccess: false,
   };
 
   componentDidMount() {
     this.getCat();
     this.getDog();
     this.getLine();
-    this.getCurrentName();
-    this.intervalNamesDemo();
-    this.intervalPetsDemo();
+    petInterval = setInterval(this.intervalPetsDemo, 5000);
+    nameInterval = setInterval(this.intervalNamesDemo, 5000);
   }
 
   componentWillUnmount() {
     clearInterval(nameInterval);
-    clearInterval(catInterval);
-    clearInterval(dogInterval);
+    clearInterval(petInterval);
   }
 
   //Get the next cat
@@ -75,7 +72,6 @@ export default class Adoption extends React.Component {
           ? res.json().then((e) => Promise.reject(e))
           : res.json().then((line) => this.setState({ line: line }));
       })
-      .then(() => this.turnCheck())
       .catch((error) => this.setState({ error: error.message }));
   };
 
@@ -90,7 +86,6 @@ export default class Adoption extends React.Component {
       },
     })
       .then((res) => (!res.ok ? res.json().then((e) => Promise.reject(e)) : 1))
-      .then(() => console.log(petCoin))
       .then(() => this.getCat())
       .then(() => this.removeName())
       .catch((error) => this.setState({ error: error.message }));
@@ -114,12 +109,6 @@ export default class Adoption extends React.Component {
 
   //HELPERS
 
-  //Get the current name thats able to adopt a pet
-  getCurrentName = () => {
-    let currentName = this.state.line[0];
-    return this.setState({ currPerson: currentName });
-  };
-
   removeName = () => {
     const URL = `${config.API_ENDPOINT}/people`;
     return fetch(URL, {
@@ -130,7 +119,6 @@ export default class Adoption extends React.Component {
     })
       .then((res) => (!res.ok ? res.json().then((e) => Promise.reject(e)) : 1))
       .then(() => this.getLine())
-      .then(() => this.getCurrentName())
       .catch((error) => this.setState({ error: error.message }));
   };
 
@@ -166,14 +154,13 @@ export default class Adoption extends React.Component {
       .then((res) => (!res.ok ? res.json().then((e) => Promise.reject(e)) : 1))
       .then(() => this.getLine())
       .then(() => exampleIndex++)
-      .then(() => (lineCap >= 7 ? (lineCap = 0) : lineCap++))
       .catch((error) => {
         console.error({ error });
       });
   };
 
   turnCheck = () => {
-    if (this.state.currPerson === this.state.userName) {
+    if (this.state.line[0] === this.state.userName) {
       return this.setState({ userTurn: true });
     } else {
       return this.setState({ userTurn: false });
@@ -182,26 +169,24 @@ export default class Adoption extends React.Component {
 
   //Interval logic
   intervalNamesDemo = () => {
-    if (!this.state.userTurn || lineCap < 7) {
-      return (nameInterval = setInterval(() => this.exampleAdd(), 5000));
+    if (this.state.line.length >= 6) {
+      return;
     } else {
-      return clearInterval(nameInterval);
+      this.exampleAdd();
     }
   };
   intervalPetsDemo = () => {
-    if (!this.state.userTurn) {
+    this.turnCheck();
+    if (this.state.userTurn) {
+      return;
+    } else {
       if (petCoin === 1) {
-        clearInterval(dogInterval);
-        catInterval = setInterval(() => this.adoptCat(), 5000);
-        petCoin = 2;
+        this.adoptCat();
+        return (petCoin = 2);
       } else if (petCoin === 2) {
-        clearInterval(catInterval);
-        dogInterval = setInterval(() => this.adoptDog(), 5000);
+        this.adoptDog();
         petCoin = 1;
       }
-    } else {
-      clearInterval(catInterval);
-      clearInterval(dogInterval);
     }
   };
 
@@ -211,65 +196,128 @@ export default class Adoption extends React.Component {
     const name = e.target["nameInput"].value;
     this.setState({ userName: name });
     this.addName(name);
+    document.forms["nameForm"].reset();
+  };
+  handleDogClick = (e) => {
+    e.preventDefault();
+    this.adoptDog();
+    this.setState({ adoptSuccess: true }, () =>
+      setTimeout(() => {
+        this.setState({ adoptSuccess: false });
+      }, 3000)
+    );
+    this.setState({ userTurn: false, userName: "" });
+    this.removeName();
+  };
+  handleCatClick = (e) => {
+    e.preventDefault();
+    this.adoptCat();
+    this.setState({ adoptSuccess: true }, () =>
+      setTimeout(() => {
+        this.setState({ adoptSuccess: false });
+      }, 3000)
+    );
+    this.setState({ userTurn: false, userName: "" });
+    this.removeName();
   };
 
   render() {
-    const { currCat, currDog, line, error, userTurn, userName } = this.state;
+    const {
+      currCat,
+      currDog,
+      line,
+      error,
+      userTurn,
+      userName,
+      adoptSuccess,
+    } = this.state;
     return (
       <section id="adopt">
-        {/* Render Cats */}
-        {currCat ? (
-          <div className="pets">
-            <img src={currCat.imageURL} alt={currCat.imageDescription}></img>
-            <h2>{currCat.name}</h2>
-            <ul className="props">
-              <li>{currCat.breed}</li>
-              <li>{currCat.gender}</li>
-              <li>{currCat.age}</li>
-              <li>{currCat.story}</li>
-            </ul>
-            {!userTurn ? (
-              <button className="adoptBtn" onClick={this.adoptDog} disabled>
-                Adopt
-              </button>
-            ) : (
-              <button className="adoptBtn" onClick={this.adoptDog}>
-                Adopt
-              </button>
-            )}
-          </div>
+        <div className="petInfo">
+          {/* Render Cats */}
+          {currCat ? (
+            <div className="pets">
+              <img src={currCat.imageURL} alt={currCat.imageDescription}></img>
+              <h2>{currCat.name}</h2>
+              <ul className="props">
+                <li>{currCat.breed}</li>
+                <li>{currCat.gender}</li>
+                <li>{currCat.age}</li>
+                <li>{currCat.story}</li>
+              </ul>
+              {!userTurn ? (
+                <button
+                  className="adoptBtn"
+                  onClick={this.handleCatClick}
+                  disabled
+                >
+                  Adopt
+                </button>
+              ) : (
+                <button className="adoptBtn" onClick={this.handleCatClick}>
+                  Adopt
+                </button>
+              )}
+            </div>
+          ) : (
+            <h1>No more cats!</h1>
+          )}
+          {/* Render Dogs*/}
+          {currDog ? (
+            <div className="pets">
+              <img src={currDog.imageURL} alt={currDog.imageDescription}></img>
+              <h2>{currDog.name}</h2>
+              <ul className="props">
+                <li>{currDog.breed}</li>
+                <li>{currDog.gender}</li>
+                <li>{currDog.age}</li>
+                <li>{currDog.story}</li>
+              </ul>
+              {!userTurn ? (
+                <button
+                  className="adoptBtn"
+                  onClick={this.handleDogClick}
+                  disabled
+                >
+                  Adopt
+                </button>
+              ) : (
+                <button className="adoptBtn" onClick={this.handleDogClick}>
+                  Adopt
+                </button>
+              )}
+            </div>
+          ) : (
+            <h1>No more dogs!</h1>
+          )}
+        </div>
+        {adoptSuccess ? (
+          <div className="confirmation">Thanks for your adoption!!!</div>
         ) : (
-          <h1>No more cats!</h1>
-        )}
-        {/* Render Dogs*/}
-        {currDog ? (
-          <div className="pets">
-            <img src={currDog.imageURL} alt={currDog.imageDescription}></img>
-            <h2>{currDog.name}</h2>
-            <ul className="props">
-              <li>{currDog.breed}</li>
-              <li>{currDog.gender}</li>
-              <li>{currDog.age}</li>
-              <li>{currDog.story}</li>
-            </ul>
-            {!userTurn ? (
-              <button className="adoptBtn" onClick={this.adoptDog} disabled>
-                Adopt
-              </button>
-            ) : (
-              <button className="adoptBtn" onClick={this.adoptDog}>
-                Adopt
-              </button>
-            )}
-          </div>
-        ) : (
-          <h1>No more dogs!</h1>
+          <></>
         )}
         {/*Render Line */}
         <div className="line">
           <h3>Queue</h3>
-          <p>Current User: {userName}</p>
-          <ul>
+          {userName !== "" ? (
+            <>{userTurn ? <h3>Your Up!</h3> : <h3>Wating...</h3>}</>
+          ) : (
+            <form name="nameForm" onSubmit={this.handleSubmit}>
+              <h2>Add your name to the queue!</h2>
+              <input
+                type="text"
+                name="nameInput"
+                className="nameInput"
+                placeholder="Enter name"
+              />
+              <button className="submit" type="submit" name="nameSubmit">
+                Submit
+              </button>
+            </form>
+          )}
+          <p className="currentUser">Current User: {userName}</p>
+          <p className="currentUser">Next in line</p>
+          <ul className="queue">
             {line.map((person, key) => {
               return (
                 <li className="lineItem" key={key}>
@@ -279,14 +327,6 @@ export default class Adoption extends React.Component {
             })}
           </ul>
         </div>
-        <form onSubmit={this.handleSubmit}>
-          <h2>Add your name to the queue!</h2>
-          <label htmlFor="nameInput">Name: </label>
-          <input type="text" name="nameInput" className="nameInput" />
-          <button type="submit" name="nameSubmit">
-            Submit
-          </button>
-        </form>
         <div className="error">
           {error ? <h2>{error.message}</h2> : <p>Enjoy!</p>}
         </div>
