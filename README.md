@@ -1,6 +1,6 @@
 # Petful Client
 
-[Live App]dsa-petful-client.bandocoder.vercel.app
+[Live App]http://dsa-petful-client.bandocoder.vercel.app
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
