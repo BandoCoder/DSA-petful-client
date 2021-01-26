@@ -1,6 +1,8 @@
 # Petful Client
 
 [Live App]http://dsa-petful-client.bandocoder.vercel.app
+[Client Repo]https://github.com/BandoCoder/DSA-petful-client
+[Server Repo]https://github.com/BandoCoder/DSA-petful-server
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
